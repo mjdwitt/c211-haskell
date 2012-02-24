@@ -46,6 +46,42 @@ isPrefix (x:xs) (y:ys) | x == y    = isPrefix xs ys
 isPrefix (x:xs)   []               = False
 isPrefix   []     _                = True
 
--- | A refactored version using foldr.
+-- | A version using foldl.
 isPrefix' :: (Eq a) => [a] -> [a] -> Bool
 
+isPrefix' xs ys = let f :: (Eq a) => ([a],Bool) -> a -> ([a],Bool)
+                      f (ys,    False) x
+                                      = (ys,False)
+                      f ([],    _    ) x
+                                      = ([],False)
+                      f ((y:ys),end) x
+                          | x == y    = (ys,True)
+                          | otherwise = (ys,False)
+                  in snd $ foldl f (ys,True) xs
+
+
+
+-- Problem 10
+-- | Appends two lists, except if the last n items of the first are
+-- the same values as their corresponding first n items of the second,
+-- the "overlap" only appears once in the produced list. For example,
+--
+--     fuse [1,2,3,4,5] [4,5,6,7,8]
+--     == [1,2,3,4,5,6,7,8]
+--
+fuse :: Eq a => [a] -> [a] -> [a]
+
+fuse xs@(x:rest) ys | xs `isPrefix'` ys = ys
+                    | otherwise         = x : fuse rest ys
+fuse _           ys                     = ys
+
+-- | A folding version?
+
+
+
+-- Problem 11
+-- | Filters out any elements from a list which are equivalent to one
+-- preceeding them.
+unique :: Eq a => [a] -> [a]
+
+unique xs = deuplicate ls
