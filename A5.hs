@@ -57,7 +57,7 @@ isPrefix' xs ys = let f :: (Eq a) => ([a],Bool) -> a -> ([a],Bool)
                       f ((y:ys),end) x
                           | x == y    = (ys,True)
                           | otherwise = (ys,False)
-                  in snd $ foldl f (ys,True) xs
+                  in snd $ foldl' f (ys,True) xs
 
 
 
@@ -75,8 +75,6 @@ fuse xs@(x:rest) ys | xs `isPrefix'` ys = ys
                     | otherwise         = x : fuse rest ys
 fuse _           ys                     = ys
 
--- | A folding version?
-
 
 
 -- Problem 11
@@ -84,4 +82,16 @@ fuse _           ys                     = ys
 -- preceeding them.
 unique :: Eq a => [a] -> [a]
 
-unique xs = deuplicate ls
+unique xs = deduplicate xs []
+            where deduplicate :: Eq a => [a] -> [a] -> [a]
+                  deduplicate (x:xs) out | x `elem` out = deduplicate xs out
+                                         | otherwise    = deduplicate xs $ out ++ [x]
+                  deduplicate   _    out                = out
+
+-- | A folding version of the above.
+unique' :: Eq a => [a] -> [a]
+
+unique' = let f :: Eq a => [a] -> a -> [a]
+              f left x | x `elem` left = left
+                       | otherwise     = left ++ [x]
+          in foldl' f []
